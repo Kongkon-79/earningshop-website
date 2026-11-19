@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html body.pep-popup-open[data-scroll-locked] {
+  overflow-y: scroll !important;
+  margin-right: 0 !important;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* body{
+  @apply bg-[#F4FFF4]
+} */
+
+.bg_color{
+  background-color: #FFFFFF
+}
+
+/* .h_underline {
+  text-decoration-line: underline;
+  text-underline-offset: 8px;
+  text-decoration-thickness: 4px;
+  padding-bottom: 1.5rem;
+} */
+
+.h_underline {
+  text-decoration-line: underline;
+  text-underline-offset: 8px;   /* smaller default for mobile */
+  text-decoration-thickness: 3px;
+  padding-bottom: .75rem;
+}
+
+@media (min-width: 768px) {
+  .h_underline {
+    text-underline-offset: 8px;
+    text-decoration-thickness: 4px;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@layer base {
+  :root {
+    /* Primary Base (#10e607) */
+    --primary: 118 94% 46%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Primary Shades */
+    --primary-light: 118 94% 60%;
+    --primary-lighter: 118 94% 70%;
+    --primary-dark: 118 94% 36%;
+    --primary-darker: 118 94% 26%;
+
+    /* Hover & Ring */
+    --primary-hover: 118 94% 40%;
+    --ring: 118 94% 46%;
+  }
+
+  .dark {
+    /* Primary Base same but adjusted for dark UI */
+    --primary: 118 94% 50%;
+    --primary-foreground: 0 0% 0%;
+
+    --primary-light: 118 94% 60%;
+    --primary-lighter: 118 94% 70%;
+    --primary-dark: 118 94% 40%;
+    --primary-darker: 118 94% 30%;
+
+    --primary-hover: 118 94% 55%;
+    --ring: 118 94% 55%;
+  }
+}
+
+
+
+
+/* language  */
+
+.notranslate {
+  translate: no;
+}
+
+
+
+/* ✅ Hide Google Translate top banner */
+
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+.skiptranslate {
+  display: none !important;
+}
