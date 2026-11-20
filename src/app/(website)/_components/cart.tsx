@@ -1,17 +1,14 @@
-﻿"use client";
+"use client";
 
 import { ShoppingCart } from "lucide-react";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { dashboardProducts, formatProductPrice, type CatalogProduct } from "@/lib/product-catalog";
 
-export const products = [
-  { id: "diapers", name: "বেবি ডায়াপার", category: "ডায়াপার", price: 650, description: "শিশুর দৈনন্দিন ব্যবহারের জন্য ডিসপোজেবল ডায়াপার।" },
-  { id: "feeding-bottle", name: "বেবি ফিডিং বোতল", category: "ফিডিং", price: 320, description: "দুধ খাওয়ানোর জন্য ঢাকনাসহ স্বচ্ছ ফিডিং বোতল।" },
-  { id: "bodysuit", name: "বেবি বডি সেট", category: "পোশাক", price: 450, description: "শিশুর প্রতিদিনের ব্যবহারের জন্য কটন বডিস্যুট সেট।" },
-];
+export { storefrontProducts as products } from "@/lib/product-catalog";
 
 export const number = (value: number) => value.toLocaleString("bn-BD");
-export const price = (value: number) => `৳${number(value)}`;
+export const price = formatProductPrice;
 const button = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 py-2 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700";
 export const primary = `${button} bg-teal-900 text-white hover:bg-teal-800`;
 export const secondary = `${button} border border-slate-300 bg-white text-slate-800 hover:bg-teal-50`;
@@ -20,6 +17,7 @@ export const dialog = "max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-aut
 type Cart = {
   cart: Record<string, number>;
   changeQuantity: (id: string, change: number) => void;
+  addIfMissing: (id: string) => void;
 };
 
 const CartContext = createContext<Cart | null>(null);
@@ -31,7 +29,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart((current) => ({ ...current, [id]: Math.max(0, (current[id] ?? 0) + change) }));
   }
 
-  return <CartContext.Provider value={{ cart, changeQuantity }}>{children}</CartContext.Provider>;
+  function addIfMissing(id: string) {
+    setCart((current) => current[id] > 0 ? current : { ...current, [id]: 1 });
+  }
+
+  return <CartContext.Provider value={{ cart, changeQuantity, addIfMissing }}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
@@ -40,29 +42,41 @@ export function useCart() {
   return cart;
 }
 
-export function CartButton() {
-  const { cart, changeQuantity } = useCart();
-  const count = products.reduce((sum, item) => sum + (cart[item.id] ?? 0), 0);
-  const total = products.reduce((sum, item) => sum + item.price * (cart[item.id] ?? 0), 0);
+export function CartButton({ product }: { product?: Pick<CatalogProduct, "id" | "name"> }) {
+  const { cart, changeQuantity, addIfMissing } = useCart();
+  const cartItems = dashboardProducts.filter(({ id }) => cart[id] > 0);
+  const count = cartItems.reduce((sum, item) => sum + cart[item.id], 0);
+  const total = cartItems.reduce((sum, item) => sum + item.price * cart[item.id], 0);
 
   return (
     <Dialog>
-      <span role="status" className="sr-only">কার্টে {number(count)}টি পণ্য আছে।</span>
+      {!product && <span role="status" className="sr-only">কার্টে {number(count)}টি পণ্য আছে।</span>}
       <DialogTrigger asChild>
-        <button type="button" aria-label={`কার্ট দেখুন (${number(count)})`} className={`${secondary} shrink-0 whitespace-nowrap`}>
-          <ShoppingCart aria-hidden="true" className="size-5 shrink-0" />
-          <span className="hidden sm:inline">কার্ট দেখুন</span> ({number(count)})
-        </button>
+        {product ? (
+          <button
+            type="button"
+            aria-label={`${product.name} অর্ডার করুন`}
+            className={`${button} shrink-0 whitespace-nowrap bg-slate-900 text-white shadow-sm transition-colors hover:bg-teal-900 motion-reduce:transition-none`}
+            onClick={() => addIfMissing(product.id)}
+          >
+            অর্ডার করুন
+          </button>
+        ) : (
+          <button type="button" aria-label={`কার্ট দেখুন (${number(count)})`} className={`${secondary} shrink-0 whitespace-nowrap`}>
+            <ShoppingCart aria-hidden="true" className="size-5 shrink-0" />
+            <span className="hidden sm:inline">কার্ট দেখুন</span> ({number(count)})
+          </button>
+        )}
       </DialogTrigger>
-      <DialogContent lang="bn" className={dialog}>
+      <DialogContent lang="bn" closeLabel="কার্ট বন্ধ করুন" className={dialog}>
         <DialogTitle>আপনার কার্ট</DialogTitle>
-        <DialogDescription>কার্টের প্রোডাক্ট ও পরিমাণ দেখুন।</DialogDescription>
+        <DialogDescription>{product ? "অর্ডারের জন্য পণ্যের পরিমাণ ও মোট দাম দেখুন।" : "কার্টের প্রোডাক্ট ও পরিমাণ দেখুন।"}</DialogDescription>
         {count === 0 ? (
           <p className="text-slate-700">কার্ট খালি আছে।</p>
         ) : (
           <>
             <ul className="divide-y divide-slate-200">
-              {products.filter(({ id }) => cart[id] > 0).map((item) => (
+              {cartItems.map((item) => (
                 <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
                   <div>
                     <p className="font-semibold">{item.name}</p>

@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState, type ReactNode } from "react";
@@ -15,8 +16,15 @@ const links = [
 const linkAppearance =
   "min-h-11 items-center rounded-lg px-3 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-900";
 const linkStyle = `inline-flex ${linkAppearance}`;
+const loginStyle =
+  "min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-teal-200 bg-teal-50 px-3 text-sm font-semibold text-teal-900 transition-colors hover:border-teal-300 hover:bg-teal-100 active:bg-teal-200 motion-reduce:transition-none";
 
 export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
+  const { data: session } = useSession();
+  const isSignedIn = Boolean(session?.user);
+  const accountHref = isSignedIn ? "/user-dashboard" : "/login";
+  const accountLabel = isSignedIn ? "ড্যাশবোর্ড" : "লগইন";
+  const AccountIcon = isSignedIn ? LayoutDashboard : LogIn;
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -56,17 +64,20 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Link href="/login" className={`hidden lg:inline-flex ${linkAppearance}`}>
-            লগইন
-          </Link>
           {cartAction}
-          <Link
-            href="/sign-up"
-            onClick={closeMenu}
-            className="hidden min-h-11 items-center whitespace-nowrap rounded-xl bg-teal-900 px-4 text-sm font-semibold text-white hover:bg-teal-800 min-[420px]:inline-flex"
-          >
-            শুরু করুন
+          <Link href={accountHref} className={`hidden lg:inline-flex ${loginStyle}`}>
+            <AccountIcon aria-hidden="true" className="size-4 shrink-0" />
+            {accountLabel}
           </Link>
+          {!isSignedIn && (
+            <Link
+              href="/sign-up"
+              onClick={closeMenu}
+              className="hidden min-h-11 items-center whitespace-nowrap rounded-xl bg-teal-900 px-4 text-sm font-semibold text-white hover:bg-teal-800 min-[420px]:inline-flex"
+            >
+              শুরু করুন
+            </Link>
+          )}
           <button
             ref={menuButton}
             type="button"
@@ -94,8 +105,11 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
             ))}
           </ul>
           <div className="mt-2 flex flex-wrap gap-2 border-t border-teal-900/10 pt-2">
-            <Link href="/login" onClick={closeMenu} className={linkStyle}>লগইন</Link>
-            <Link href="/sign-up" onClick={closeMenu} className={`min-[420px]:hidden ${linkStyle}`}>শুরু করুন</Link>
+            <Link href={accountHref} onClick={closeMenu} className={`inline-flex ${loginStyle}`}>
+              <AccountIcon aria-hidden="true" className="size-4 shrink-0" />
+              {accountLabel}
+            </Link>
+            {!isSignedIn && <Link href="/sign-up" onClick={closeMenu} className={`min-[420px]:hidden ${linkStyle}`}>শুরু করুন</Link>}
           </div>
         </nav>
       </div>

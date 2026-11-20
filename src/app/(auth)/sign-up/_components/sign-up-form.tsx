@@ -38,7 +38,7 @@ const formSchema = registrationSchema
     message: "দুইটি পাসওয়ার্ড মিলছে না।",
   });
 
-const SignupForm = () => {
+const SignupForm = ({ referralCode }: { referralCode?: string }) => {
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const router = useRouter();
@@ -57,7 +57,8 @@ const SignupForm = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["sign-up"],
     mutationFn: async (values: RegistrationPayload) => {
-      const response = await fetch("/api/auth/register", {
+      const query = referralCode !== undefined ? `?${new URLSearchParams({ ref: referralCode })}` : "";
+      const response = await fetch(`/api/auth/register${query}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),

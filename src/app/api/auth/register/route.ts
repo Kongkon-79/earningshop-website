@@ -13,7 +13,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const account = await registerWithBackend(registration.data);
+    const referralCode = new URL(request.url).searchParams.get("ref") ?? undefined;
+    const account = await registerWithBackend(registration.data, referralCode);
     return NextResponse.json({ success: true, data: account }, { status: 201 });
   } catch (error) {
     if (error instanceof BackendAuthError && error.status >= 400 && error.status < 500) {

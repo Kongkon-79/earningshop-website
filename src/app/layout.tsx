@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import LangConfig from "./lang-config";
 import Script from "next/script";
 import TranslateProvider from "@/components/providers/TranslateProvider";
+import { CartProvider } from "./(website)/_components/cart";
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -60,7 +61,7 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <TranslateProvider />
             </Suspense>
-            {children}
+            <CartProvider>{children}</CartProvider>
 
             <Script
               src="//translate.google.com/translate_a/element.js?cb=TranslateInit"

@@ -1,6 +1,8 @@
 ﻿import { z } from "zod";
+import type { ChangePasswordPayload } from "./change-password";
 import type { ResetPasswordPayload, VerifyOtpPayload } from "./forgot-password";
 import type { RegistrationPayload } from "./registration";
+import { backendApiUrl } from "./backend-url";
 
 const loginDataSchema = z.object({
   accessToken: z.string().min(1),
@@ -30,20 +32,13 @@ export class BackendAuthError extends Error {
   }
 }
 
-async function postToBackendAuth(path: string, body: unknown) {
-  const configuredUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!configuredUrl) throw new Error("Backend authentication URL is not configured");
-  const base = new URL(configuredUrl);
-  if (!["http:", "https:"].includes(base.protocol)) {
-    throw new Error("Backend authentication URL must use HTTP or HTTPS");
-  }
-  const prefix = base.pathname.replace(/\/+$/, "") || "/api/v1";
-  base.pathname = prefix + path;
-  base.search = "";
-  base.hash = "";
-  const response = await fetch(base, {
+async function postToBackendAuth(path: string, body: unknown, accessToken?: string, query?: URLSearchParams) {
+  const response = await fetch(backendApiUrl(path, query), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     body: JSON.stringify(body),
     cache: "no-store",
     signal: AbortSignal.timeout(15000),
@@ -78,27 +73,33 @@ const registeredAccountSchema = z.object({
   email: z.string().min(1),
 });
 
-export async function registerWithBackend({ phoneNumber, ...registration }: RegistrationPayload) {
+export async function registerWithBackend({ phoneNumber, ...registration }: RegistrationPayload, referralCode?: string) {
+  const query = referralCode !== undefined ? new URLSearchParams({ ref: referralCode }) : undefined;
   const result = await postToBackendAuth("/auth/register", {
     ...registration,
     ...(phoneNumber ? { phoneNumber } : {}),
-  });
+  }, undefined, query);
   return registeredAccountSchema.parse(result);
 }
 
-const passwordResetMessageSchema = z.object({ message: z.string().min(1) });
+const authMessageSchema = z.object({ message: z.string().min(1) });
 
 export async function sendPasswordResetOtp(email: string) {
   const data = await postToBackendAuth("/auth/forgot-password", { email });
-  return passwordResetMessageSchema.parse(data).message;
+  return authMessageSchema.parse(data).message;
 }
 
 export async function verifyPasswordResetOtp({ email, otp }: VerifyOtpPayload) {
   const data = await postToBackendAuth("/auth/verify", { email, otp });
-  return passwordResetMessageSchema.parse(data).message;
+  return authMessageSchema.parse(data).message;
 }
 
 export async function resetPasswordWithBackend({ email, newPassword }: ResetPasswordPayload) {
   const data = await postToBackendAuth("/auth/reset-password", { email, newPassword });
-  return passwordResetMessageSchema.parse(data).message;
+  return authMessageSchema.parse(data).message;
+}
+
+export async function changePasswordWithBackend({ oldPassword, newPassword }: ChangePasswordPayload, accessToken: string) {
+  const data = await postToBackendAuth("/auth/change-password", { oldPassword, newPassword }, accessToken);
+  return authMessageSchema.parse(data).message;
 }

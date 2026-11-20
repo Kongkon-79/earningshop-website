@@ -59,7 +59,7 @@ const LoginForm = () => {
       }
 
       toast.success("লগইন সফল হয়েছে।");
-      router.replace("/");
+      router.replace(searchParams.get("callbackUrl") === "/user-dashboard" ? "/user-dashboard" : "/");
       router.refresh();
     } catch (error) {
       console.error("Login failed:", error);
