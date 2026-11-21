@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { House, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -13,9 +13,12 @@ import { dashboardLinks, settingsHref } from "./dashboard-links";
 
 const itemClass = "flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium leading-snug";
 
-export default function UserDashboardSidebar({ onNavigate }: { onNavigate?: () => void }) {
+export default function UserDashboardSidebar({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const linkClass = cn(itemClass, collapsed && "justify-center px-0");
+  const labelClass = collapsed ? "sr-only" : undefined;
+  const logoutLabel = isSigningOut ? "লগআউট হচ্ছে…" : "লগআউট";
 
   async function logout() {
     setIsSigningOut(true);
@@ -28,12 +31,34 @@ export default function UserDashboardSidebar({ onNavigate }: { onNavigate?: () =
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-4 p-3 sm:gap-5 sm:p-4 lg:gap-6">
-      <Link href="/" onClick={onNavigate} className="inline-flex w-fit rounded-lg px-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700">
-        <Image src="/assets/images/logo.png" alt="Earningshop Limited" width={715} height={349} sizes="(min-width: 1280px) 144px, 128px" className="h-auto w-32 xl:w-36" priority={!onNavigate} />
+    <div className={cn(
+      "flex h-full min-h-0 flex-col pb-3 pt-2 sm:pb-4 [@media(max-height:400px)]:pb-2",
+      collapsed ? "px-2" : "px-3 sm:px-4",
+    )}>
+      <Link
+        href="/"
+        onClick={onNavigate}
+        title={collapsed ? "Earningshop Limited" : undefined}
+        className={cn(
+          "inline-flex min-h-11 shrink-0 items-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700",
+          collapsed ? "w-11 justify-center self-center" : "w-fit px-2",
+        )}
+      >
+        <Image
+          src="/assets/images/logo.png"
+          alt="Earningshop Limited"
+          width={715}
+          height={349}
+          sizes={collapsed ? "44px" : "(max-height: 400px) 96px, (min-width: 1280px) 144px, 128px"}
+          className={cn(
+            "aspect-[5/2] h-auto object-cover",
+            collapsed ? "w-11" : "w-32 xl:w-36 [@media(max-height:400px)]:w-24",
+          )}
+          priority={!onNavigate}
+        />
       </Link>
 
-      <nav aria-label="ড্যাশবোর্ড ন্যাভিগেশন" className="space-y-1">
+      <nav aria-label="ড্যাশবোর্ড ন্যাভিগেশন" className="-mx-1 mt-1 min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain px-1 py-1 lg:mt-2 [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin]">
         {dashboardLinks.map(({ href, label, icon: Icon }) => {
           const current = pathname === href;
           const inSection = href === settingsHref && pathname.startsWith(`${settingsHref}/`);
@@ -42,9 +67,10 @@ export default function UserDashboardSidebar({ onNavigate }: { onNavigate?: () =
               key={href}
               href={href}
               aria-current={current ? "page" : inSection ? "location" : undefined}
+              title={collapsed ? label : undefined}
               onClick={onNavigate}
               className={cn(
-                itemClass,
+                linkClass,
                 "border border-transparent focus-visible:outline-teal-700",
                 current || inSection
                   ? "border-emerald-800 bg-emerald-800 font-semibold text-white shadow-sm"
@@ -52,20 +78,20 @@ export default function UserDashboardSidebar({ onNavigate }: { onNavigate?: () =
               )}
             >
               <Icon aria-hidden="true" className="size-5 shrink-0" />
-              {label}
+              <span className={labelClass}>{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-slate-200 pt-3">
-        <Link href="/" onClick={onNavigate} className={cn(itemClass, "text-slate-700 hover:bg-slate-50 focus-visible:outline-teal-700")}>
+      <div className="mt-3 shrink-0 space-y-1 border-t border-slate-200 pt-3 lg:mt-5 [@media(max-height:400px)]:mt-2 [@media(max-height:400px)]:pt-2">
+        <Link href="/" onClick={onNavigate} title={collapsed ? "স্টোরে ফিরুন" : undefined} className={cn(linkClass, "text-slate-700 hover:bg-slate-50 focus-visible:outline-teal-700")}>
           <House aria-hidden="true" className="size-4 shrink-0" />
-          স্টোরে ফিরুন
+          <span className={labelClass}>স্টোরে ফিরুন</span>
         </Link>
-        <button type="button" disabled={isSigningOut} onClick={logout} className={cn(itemClass, "w-full text-slate-700 hover:bg-red-50 hover:text-red-800 focus-visible:outline-teal-700 disabled:opacity-60")}>
+        <button type="button" disabled={isSigningOut} onClick={logout} title={collapsed ? logoutLabel : undefined} className={cn(linkClass, "w-full text-slate-700 hover:bg-red-50 hover:text-red-800 focus-visible:outline-teal-700 disabled:opacity-60")}>
           <LogOut aria-hidden="true" className="size-4 shrink-0" />
-          {isSigningOut ? "লগআউট হচ্ছে…" : "লগআউট"}
+          <span className={labelClass}>{logoutLabel}</span>
         </button>
       </div>
     </div>
