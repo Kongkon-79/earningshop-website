@@ -44,9 +44,9 @@ export default async function OverviewContainer() {
           ব্যালেন্স, রেফারেল, কাজ ও উইথড্রের তথ্য এক জায়গায় দেখুন।
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <div className="rounded-xl bg-white/15 px-3 py-2">
+          <div className="min-w-0 max-w-full rounded-xl bg-white/15 px-3 py-2">
             <p className="text-xs font-medium text-teal-50">ব্যালেন্স</p>
-            <p className="text-xl font-bold tabular-nums">{formatAmount(balance, "৳")}</p>
+            <p className="text-xl font-bold tabular-nums [overflow-wrap:anywhere]">{formatAmount(balance, "৳")}</p>
           </div>
           <button type="button" disabled className="inline-flex min-h-11 cursor-not-allowed items-center gap-2 rounded-xl bg-white/90 px-3 text-sm font-semibold text-teal-950" aria-describedby="withdraw-status">
             উইথড্র করুন
@@ -84,12 +84,12 @@ export default async function OverviewContainer() {
               {recentRewards.map((reward) => {
                 const date = formatDate(reward.reviewedAt);
                 return (
-                  <li key={reward._id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                    <div className="min-w-0">
+                  <li key={reward._id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 py-2.5 text-sm">
+                    <div className="min-w-0 flex-1 basis-32">
                       <p className="font-semibold text-slate-900 [overflow-wrap:anywhere]">{reward.taskTitle}</p>
-                      {date && <p className="mt-0.5 text-xs text-slate-600">{date}</p>}
+                      {date && <p className="mt-0.5 text-xs text-slate-600 [overflow-wrap:anywhere]">{date}</p>}
                     </div>
-                    <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums text-teal-900">
+                    <span className="ml-auto min-w-0 max-w-full text-right font-semibold tabular-nums text-teal-900 [overflow-wrap:anywhere]">
                       {formatAmount(reward.reward, "৳")}
                     </span>
                   </li>

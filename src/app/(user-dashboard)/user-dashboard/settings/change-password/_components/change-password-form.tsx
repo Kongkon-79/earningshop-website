@@ -70,7 +70,7 @@ export default function ChangePasswordForm() {
               পাসওয়ার্ড পরিবর্তন হয়েছে।
             </p>
           )}
-          <Button type="submit" disabled={isSubmitting} className={`${authButtonClass} sm:w-auto sm:px-6`}>
+          <Button type="submit" disabled={isSubmitting} className={`${authButtonClass} h-auto min-h-11 whitespace-normal sm:w-auto sm:px-6`}>
             {isSubmitting ? "সংরক্ষণ হচ্ছে…" : "পাসওয়ার্ড পরিবর্তন করুন"}
           </Button>
         </form>

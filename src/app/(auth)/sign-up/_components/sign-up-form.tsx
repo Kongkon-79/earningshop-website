@@ -115,8 +115,8 @@ const SignupForm = ({ referralCode }: { referralCode?: string }) => {
       <AuthFormHeader title="অ্যাকাউন্ট খুলুন" />
 
       <Form {...form}>
-        <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 sm:space-y-3 [@media(min-width:640px)_and_(max-height:500px)]:space-y-2">
-          <div className="grid grid-cols-2 gap-3 [@media(min-width:640px)_and_(max-height:500px)]:grid-cols-3">
+        <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 [container-type:inline-size] sm:space-y-3 [@media(min-width:640px)_and_(max-height:500px)]:space-y-2">
+          <div className="grid gap-3 [@container(min-width:24rem)]:grid-cols-2">
             <FormField
               control={form.control}
               name="fullName"
@@ -153,7 +153,7 @@ const SignupForm = ({ referralCode }: { referralCode?: string }) => {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="col-span-2 min-w-0 space-y-1 [@media(min-width:640px)_and_(max-height:500px)]:col-span-1">
+                <FormItem className="min-w-0 space-y-1 [@container(min-width:24rem)]:col-span-2">
                   <FormLabel>ইমেইল</FormLabel>
                   <div className="relative">
                     <Mail aria-hidden="true" className={authIconClass} />
@@ -167,7 +167,7 @@ const SignupForm = ({ referralCode }: { referralCode?: string }) => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 [@container(min-width:24rem)]:grid-cols-2">
             <FormField
               control={form.control}
               name="password"

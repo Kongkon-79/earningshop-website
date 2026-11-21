@@ -1,4 +1,7 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
+
+const appFont = ["var(--font-anek-bangla)", "sans-serif"];
 
 const config: Config = {
   darkMode: ["class"],
@@ -8,6 +11,10 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      sans: appFont,
+      mono: appFont,
+    },
     extend: {
       colors: {
         background: "hsl(var(--background))",
@@ -50,9 +57,6 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
-      },
-      fontFamily: {
-        dagger: ["var(--font-dagger-square)"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -108,6 +112,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 };
 export default config;

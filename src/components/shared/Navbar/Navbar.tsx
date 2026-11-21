@@ -4,7 +4,7 @@ import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 const links = [
   { label: "সুবিধা", href: "/#features" },
@@ -23,12 +23,25 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
   const { data: session } = useSession();
   const isSignedIn = Boolean(session?.user);
   const accountHref = isSignedIn ? "/user-dashboard" : "/login";
-  const accountLabel = isSignedIn ? "ড্যাশবোর্ড" : "লগইন";
+  const accountLabel = isSignedIn ? "My Account" : "লগইন";
   const AccountIcon = isSignedIn ? LayoutDashboard : LogIn;
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeMenu = () => setOpen(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setOpen(false);
+    };
+
+    closeOnDesktop();
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, [open]);
 
   return (
     <header

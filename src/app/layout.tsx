@@ -3,16 +3,17 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AuthProvider from "@/components/providers/AuthProvider";
 import AppProvider from "@/components/providers/AppProvider";
-import { Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import { Suspense } from "react";
 import LangConfig from "./lang-config";
 import Script from "next/script";
 import TranslateProvider from "@/components/providers/TranslateProvider";
 import { CartProvider } from "./(website)/_components/cart";
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
+const anekBangla = localFont({
+  src: "./fonts/AnekBangla-Variable.woff2",
+  weight: "100 800",
+  adjustFontFallback: false,
+  variable: "--font-anek-bangla",
   display: "swap",
 });
 
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.className}>
+    <html lang="en" className={anekBangla.variable}>
       <head>
         <Script id="gtm-script" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -37,7 +38,7 @@ export default function RootLayout({
           })(window,document,'script','dataLayer','GTM-NCJ7R7KQ');`}
         </Script>
       </head>
-      <body className={`font-dagger antialiased`}>
+      <body className="font-sans antialiased">
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-NCJ7R7KQ"
