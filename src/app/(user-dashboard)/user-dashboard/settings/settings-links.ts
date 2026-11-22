@@ -1,10 +1,10 @@
-﻿import { KeyRound, UserRound } from "lucide-react";
+import { KeyRound, UserRound } from "lucide-react";
 
 export const settingsLinks = [
   {
     href: "/user-dashboard/settings/personal-information",
     label: "ব্যক্তিগত তথ্য",
-    description: "আপনার অ্যাকাউন্টের যোগাযোগের তথ্য ও রেফারেল কোড দেখুন।",
+    description: "আপনার ব্যক্তিগত তথ্য দেখুন ও হালনাগাদ করুন।",
     icon: UserRound,
   },
   {

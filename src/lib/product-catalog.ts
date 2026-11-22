@@ -1,4 +1,4 @@
-export type CatalogProduct = {
+﻿export type CatalogProduct = {
   id: string;
   name: string;
   category: string;
@@ -43,7 +43,14 @@ const blanket: CatalogProduct = {
   summary: "হালকা ও উষ্ণ শিশু কম্বল।",
 };
 
-export const storefrontProducts = [diapers, feedingBottle, bodysuit];
+export type StorefrontProduct = Pick<CatalogProduct, "id" | "name" | "category" | "price" | "description"> & {
+  images: string[];
+};
+
+export type StorefrontProductPage = {
+  products: StorefrontProduct[];
+  nextPage: number | null;
+};
 export const dashboardProducts = [feedingBottle, bodysuit, diapers, blanket];
 
 export function formatProductPrice(amount: number) {

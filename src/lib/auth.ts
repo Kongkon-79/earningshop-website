@@ -1,6 +1,7 @@
-﻿import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { backendAuthRequest } from "./backend-auth";
+import { getAccountProfile } from "./backend-profile";
 
 export function createAuthOptions(): NextAuthOptions {
   return {
@@ -44,8 +45,25 @@ export function createAuthOptions(): NextAuthOptions {
       }),
     ],
     callbacks: {
-      async jwt({ token, user }) {
+      async jwt({ token, user, trigger, session }) {
         if (user) token.backendUser = user.backendUser;
+
+        const backendUser = token.backendUser;
+        if (trigger === "update" && session?.refreshProfile === true && backendUser) {
+          try {
+            const profile = await getAccountProfile(backendUser.accessToken);
+            if (profile.id === backendUser.id) {
+              token.backendUser = {
+                ...backendUser,
+                fullName: profile.fullName,
+                phoneNumber: profile.phoneNumber || undefined,
+              };
+            }
+          } catch {
+            // Keep the session usable when the profile API is unavailable.
+          }
+        }
+
         return token;
       },
       async session({ session, token }) {
