@@ -1,0 +1,52 @@
+.frame form :is(input, textarea, select):focus {
+  border-color: #0f766e;
+}
+
+.frame form [aria-invalid="true"]:focus {
+  border-color: #b91c1c;
+}
+
+.frame form :has(> input:focus) > svg {
+  color: #0f766e;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .frame form :is(input, textarea, select) {
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .frame form :has(> input) > svg {
+    transition: color 160ms ease;
+  }
+
+  .frame form button[type="submit"] {
+    transition: background-color 160ms ease, transform 160ms ease;
+  }
+
+  .frame form button[type="submit"]:enabled:active {
+    transform: scale(0.985);
+  }
+
+  .frame header a svg {
+    transition: translate 160ms ease;
+  }
+
+  .frame header a:is(:hover, :focus-visible) svg {
+    translate: -3px 0;
+  }
+
+  .frame form [id$="-form-item-message"] {
+    animation: validation-in 180ms ease-out both;
+  }
+}
+
+@keyframes validation-in {
+  from {
+    opacity: 0.65;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

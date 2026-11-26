@@ -1,7 +1,8 @@
-﻿import { GitBranch, ShieldCheck, ShoppingBag } from "lucide-react";
+import { GitBranch, ShieldCheck, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Reveal } from "@/app/(website)/_components/website-motion";
 
 const benefits = [
   { icon: ShoppingBag, title: "বেবি প্রোডাক্ট", description: "শিশুর প্রয়োজনীয় পণ্য এক জায়গায় দেখুন।" },
@@ -30,13 +31,15 @@ export default function AuthPageShell({ children }: { children: ReactNode }) {
         </Link>
 
         <div className="hidden lg:block [@media(min-width:640px)_and_(max-height:500px)]:hidden">
-          <p className="max-w-lg text-3xl font-bold leading-snug xl:text-4xl">
-            বেবি পণ্য ও রেফারেল
-            <span className="mt-1 block text-emerald-300">সব এক ড্যাশবোর্ডে</span>
-          </p>
+          <Reveal>
+            <p className="max-w-lg text-3xl font-bold leading-snug xl:text-4xl">
+              বেবি পণ্য ও রেফারেল
+              <span className="mt-1 block text-emerald-300">সব এক ড্যাশবোর্ডে</span>
+            </p>
+          </Reveal>
           <ul className="mt-6 space-y-4">
-            {benefits.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex items-center gap-3">
+            {benefits.map(({ icon: Icon, title, description }, index) => (
+              <Reveal as="li" key={title} delay={0.06 + index * 0.045} className="flex items-center gap-3">
                 <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/10 text-emerald-300">
                   <Icon aria-hidden="true" className="size-5" />
                 </span>
@@ -44,7 +47,7 @@ export default function AuthPageShell({ children }: { children: ReactNode }) {
                   <p className="font-semibold">{title}</p>
                   <p className="text-sm leading-relaxed text-slate-300">{description}</p>
                 </div>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>

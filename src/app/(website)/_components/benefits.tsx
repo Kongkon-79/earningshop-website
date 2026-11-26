@@ -1,4 +1,5 @@
-﻿import { Briefcase, CirclePlay, GitBranch, Link2, ShoppingBag, Wallet } from "lucide-react";
+import { Briefcase, CirclePlay, GitBranch, Link2, ShoppingBag, Wallet } from "lucide-react";
+import { Reveal } from "./website-motion";
 
 const benefits = [
   {
@@ -42,7 +43,7 @@ export default function Benefits() {
       className="scroll-mt-24 border-y border-teal-900/5 bg-[#f4f7f2] font-sans text-slate-900"
     >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
-        <div className="grid items-end gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)] lg:gap-8">
+        <Reveal className="grid items-end gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)] lg:gap-8">
           <div>
             <p className="text-sm font-semibold text-teal-800">সুবিধা</p>
             <h2 id="benefits-title" className="mt-2 text-balance text-2xl font-bold leading-snug sm:text-3xl lg:text-4xl">
@@ -52,17 +53,17 @@ export default function Benefits() {
           <p className="max-w-xl leading-relaxed text-slate-700">
             মোবাইল থেকেই কাজ, রেফারেল ও আয়ের হিসাব দেখুন।
           </p>
-        </div>
+        </Reveal>
 
         <ul role="list" className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:mt-8">
-          {benefits.map(({ icon: Icon, title, description }) => (
-            <li key={title} className="min-w-0 rounded-2xl border border-teal-900/10 bg-white p-4 shadow-sm sm:p-5">
+          {benefits.map(({ icon: Icon, title, description }, index) => (
+            <Reveal as="li" key={title} delay={(index % 3) * 0.04} className="min-w-0 rounded-2xl border border-teal-900/10 bg-white p-4 shadow-sm sm:p-5">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-900">
                 <Icon aria-hidden="true" className="size-5" />
               </span>
               <h3 className="mt-3 text-base font-bold leading-snug">{title}</h3>
               <p className="mt-1 text-sm leading-relaxed text-slate-700">{description}</p>
-            </li>
+            </Reveal>
           ))}
         </ul>
       </div>

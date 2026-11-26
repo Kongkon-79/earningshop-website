@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import AuthFormMotion from "../../auth-form-motion";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -74,7 +76,7 @@ const LoginForm = () => {
   }
 
   return (
-    <div>
+    <AuthFormMotion>
       <AuthFormHeader
         backHref="/"
         backLabel="হোমে ফিরুন"
@@ -138,7 +140,7 @@ const LoginForm = () => {
           </p>
         </form>
       </Form>
-    </div>
+    </AuthFormMotion>
   );
 };
 

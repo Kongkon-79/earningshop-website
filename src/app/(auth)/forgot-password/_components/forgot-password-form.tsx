@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import AuthFormMotion from "../../auth-form-motion";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -31,7 +33,7 @@ export default function ForgotPasswordForm() {
   });
 
   return (
-    <div>
+    <AuthFormMotion>
       <AuthFormHeader
         backHref="/login"
         backLabel="লগইনে ফিরুন"
@@ -61,6 +63,6 @@ export default function ForgotPasswordForm() {
           </Button>
         </form>
       </Form>
-    </div>
+    </AuthFormMotion>
   );
 }

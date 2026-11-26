@@ -1,8 +1,10 @@
-﻿"use client";
+"use client";
 
-import { ArrowRight, BadgeCheck, Copy, Users, Wallet } from "lucide-react";
+import { ArrowRight, BadgeCheck, Check, Copy, Users, Wallet } from "lucide-react";
+import { m } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
+import { Reveal, useWebsiteReducedMotion } from "./website-motion";
 
 const referralCode = "RH7X4K";
 const activity = [
@@ -20,6 +22,7 @@ const focusStyle =
 
 export default function Hero() {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
+  const reduceMotion = useWebsiteReducedMotion();
 
   async function copyCode() {
     try {
@@ -36,7 +39,7 @@ export default function Hero() {
       className="border-b border-teal-900/10 bg-[#f7f7ef] bg-[radial-gradient(ellipse_at_top_right,_#d9eee4,_transparent_65%)]"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-7 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-12 lg:px-8 lg:py-14">
-        <div className="min-w-0">
+        <Reveal className="min-w-0">
           <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-teal-900/15 bg-white/75 px-3 py-1.5 text-sm font-semibold text-teal-900">
             <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-teal-700" />
             মোবাইল-ফ্রেন্ডলি রেফারেল ও ওয়ার্ক প্ল্যাটফর্ম
@@ -52,11 +55,11 @@ export default function Hero() {
           </p>
 
           <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
-            <Link href="/sign-up" className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-teal-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-800 sm:px-5 ${focusStyle}`}>
+            <Link href="/sign-up" className={`group inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-teal-900 px-4 motion-safe:transition-[background-color,transform] motion-safe:active:scale-[0.98] py-2.5 text-sm font-bold text-white hover:bg-teal-800 sm:px-5 ${focusStyle}`}>
               ফ্রি অ্যাকাউন্ট খুলুন
-              <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+              <ArrowRight aria-hidden="true" className="size-4 shrink-0 motion-safe:transition-transform motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1" />
             </Link>
-            <a href="#how-it-works" className={`inline-flex min-h-11 items-center justify-center rounded-xl border border-teal-900/20 bg-white px-4 py-2.5 text-sm font-semibold text-teal-900 hover:bg-teal-50 sm:px-5 ${focusStyle}`}>
+            <a href="#how-it-works" className={`inline-flex min-h-11 items-center justify-center rounded-xl border border-teal-900/20 bg-white px-4 motion-safe:transition-colors py-2.5 text-sm font-semibold text-teal-900 hover:bg-teal-50 sm:px-5 ${focusStyle}`}>
               কীভাবে কাজ করে
             </a>
           </div>
@@ -69,9 +72,9 @@ export default function Hero() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
 
-        <div className="min-w-0 overflow-hidden rounded-3xl border border-teal-900/15 bg-white shadow-lg shadow-teal-950/10">
+        <Reveal delay={0.08} className="min-w-0 overflow-hidden rounded-3xl border border-teal-900/15 bg-white shadow-lg shadow-teal-950/10">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-teal-100 bg-teal-50 px-4 py-4 sm:px-6">
             <div>
               <h2 className="text-sm font-semibold text-teal-950">নমুনা ব্যালেন্স</h2>
@@ -91,7 +94,18 @@ export default function Hero() {
                 onClick={copyCode}
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-white/15 px-3 text-sm font-semibold hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
-                <Copy aria-hidden="true" className="size-4 shrink-0" />
+                {copyStatus === "copied" ? (
+                  <m.span
+                    aria-hidden="true"
+                    className="shrink-0 text-emerald-300"
+                    animate={{ scale: reduceMotion ? 1 : [0.78, 1.2, 1] }}
+                    transition={{ duration: reduceMotion ? 0 : 0.3 }}
+                  >
+                    <Check className="size-4" />
+                  </m.span>
+                ) : (
+                  <Copy aria-hidden="true" className="size-4 shrink-0" />
+                )}
                 {copyStatus === "copied" ? "কপি হয়েছে" : "কপি করুন"}
               </button>
             </div>
@@ -113,7 +127,7 @@ export default function Hero() {
               ))}
             </ul>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

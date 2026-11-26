@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import AuthFormMotion from "../../auth-form-motion";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -87,7 +89,7 @@ const SignupForm = ({ referralCode }: { referralCode?: string }) => {
   }
 
   return (
-    <div>
+    <AuthFormMotion>
       <Dialog open={isRegistrationModalOpen} onOpenChange={setIsRegistrationModalOpen}>
         <DialogContent lang="bn" className="w-[calc(100%-2rem)] max-w-[460px] max-h-[90dvh] overflow-y-auto rounded-[20px] border-0 bg-white p-6 font-sans shadow-2xl sm:rounded-[20px] sm:p-8">
           <DialogHeader className="items-center space-y-4 text-center">
@@ -208,7 +210,7 @@ const SignupForm = ({ referralCode }: { referralCode?: string }) => {
           </p>
         </form>
       </Form>
-    </div>
+    </AuthFormMotion>
   );
 };
 

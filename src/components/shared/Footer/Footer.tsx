@@ -1,5 +1,6 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
+import { Reveal } from "@/app/(website)/_components/website-motion";
 
 const platformLinks = [
   { label: "কীভাবে কাজ করে", href: "/#how-it-works" },
@@ -20,7 +21,7 @@ export default function Footer() {
       className="border-t border-teal-900/10 bg-[#f7f7ef] font-sans text-slate-700"
     >
       <div className="mx-auto max-w-7xl px-4 pb-6 pt-8 sm:px-6 lg:px-8 lg:pt-12">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:gap-x-6 lg:grid-cols-[2fr_1fr_1fr] lg:gap-x-8">
+        <Reveal className="grid grid-cols-2 gap-x-4 gap-y-5 sm:gap-x-6 lg:grid-cols-[2fr_1fr_1fr] lg:gap-x-8">
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className={`inline-flex items-center gap-3 ${focusStyle}`}>
               <Image
@@ -60,7 +61,7 @@ export default function Footer() {
               <li>পেমেন্ট অ্যাডমিন ম্যানুয়ালি যাচাই করেন</li>
             </ul>
           </section>
-        </div>
+        </Reveal>
 
         <p className="mt-6 border-t border-slate-200 pt-4 text-center text-sm leading-relaxed text-slate-600">
           © {new Date().getFullYear()} আর্নিংশপ লিমিটেড। সর্বস্বত্ব সংরক্ষিত।

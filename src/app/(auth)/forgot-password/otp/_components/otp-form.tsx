@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import AuthFormMotion from "../../../auth-form-motion";
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -82,7 +84,7 @@ export default function OtpForm() {
   const isBusy = isPending || resendOtpPending;
 
   return (
-    <div>
+    <AuthFormMotion>
       <AuthFormHeader
         backHref="/forgot-password"
         backLabel="ইমেইল ধাপে ফিরুন"
@@ -130,6 +132,6 @@ export default function OtpForm() {
           </div>
         </form>
       )}
-    </div>
+    </AuthFormMotion>
   );
 }

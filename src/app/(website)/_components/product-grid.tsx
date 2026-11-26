@@ -2,12 +2,14 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Baby, PackageOpen, RefreshCw, ShoppingCart, TriangleAlert } from "lucide-react";
+import { m } from "motion/react";
 import Image from "next/image";
 import { useState, type ReactElement } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import type { StorefrontProduct, StorefrontProductPage } from "@/lib/product-catalog";
 import { cn } from "@/lib/utils";
 import { dialog, number, price, primary, secondary, useCart } from "./cart";
+import { Reveal, useWebsiteReducedMotion } from "./website-motion";
 
 const layouts = {
   home: {
@@ -52,12 +54,20 @@ function ProductImage({ src, alt, sizes, className }: {
 
 function ProductGallery({ name, images }: Pick<StorefrontProduct, "name" | "images">) {
   const [selected, setSelected] = useState(0);
+  const reduceMotion = useWebsiteReducedMotion();
   const currentImage = images[selected] ?? images[0];
 
   return (
     <div className="min-w-0">
       <div className="relative aspect-[3/2] overflow-hidden rounded-xl bg-teal-50">
-        <ProductImage key={currentImage} src={currentImage} alt={name} sizes="(min-width: 640px) 460px, 90vw" className="object-contain" />
+        <m.div
+          key={currentImage}
+          className="absolute inset-0"
+          animate={{ opacity: reduceMotion ? 1 : [0.72, 1] }}
+          transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
+        >
+          <ProductImage src={currentImage} alt={name} sizes="(min-width: 640px) 460px, 90vw" className="object-contain" />
+        </m.div>
       </div>
       {images.length > 1 && (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -67,7 +77,7 @@ function ProductGallery({ name, images }: Pick<StorefrontProduct, "name" | "imag
               type="button"
               aria-label={`${number(index + 1)} নম্বর ছবি দেখুন`}
               aria-pressed={image === currentImage}
-              className="relative size-14 overflow-hidden rounded-lg border border-slate-300 bg-teal-50 aria-pressed:border-teal-700 aria-pressed:ring-1 aria-pressed:ring-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              className="relative size-14 overflow-hidden rounded-lg border border-slate-300 bg-teal-50 motion-safe:transition-[border-color,box-shadow,transform] motion-safe:active:scale-95 aria-pressed:border-teal-700 aria-pressed:ring-1 aria-pressed:ring-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               onClick={() => setSelected(index)}
             >
               <ProductImage src={image} alt="" sizes="56px" className="object-cover" />
@@ -101,20 +111,21 @@ function ProductDetails({ item, children }: { item: StorefrontProduct; children:
   );
 }
 
-function ProductCard({ item, variant }: { item: StorefrontProduct; variant: ProductGridVariant }) {
+function ProductCard({ item, variant, delay }: { item: StorefrontProduct; variant: ProductGridVariant; delay: number }) {
   const { cart, addProduct } = useCart();
   const quantity = cart[item.id]?.quantity ?? 0;
   const Title = variant === "catalog" ? "h2" : "h3";
+  const reduceMotion = useWebsiteReducedMotion();
 
   return (
-    <li className={`${card} flex`}>
+    <Reveal as="li" delay={delay} className={`${card} group flex motion-safe:transition-shadow hover:shadow-md focus-within:shadow-md`}>
       <div className="relative aspect-[3/2] overflow-hidden bg-gradient-to-br from-emerald-50 to-amber-50">
         <ProductImage
           key={item.images[0]}
           src={item.images[0]}
           alt={item.name}
           sizes={layouts[variant].sizes}
-          className="object-cover"
+          className="object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:[@media(hover:hover)]:group-hover:scale-[1.025]"
         />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
@@ -127,20 +138,35 @@ function ProductCard({ item, variant }: { item: StorefrontProduct; variant: Prod
           <button
             type="button"
             aria-label={`${item.name} কার্টে যোগ করুন${quantity > 0 ? ` (${number(quantity)})` : ""}`}
-            className={cn(primary, "grow-[2] gap-1.5 whitespace-nowrap px-1.5")}
+            className={cn(primary, "grow-[2] gap-1.5 whitespace-nowrap px-1.5 motion-safe:transition-[background-color,transform] motion-safe:active:scale-[0.98]")}
             onClick={() => addProduct(item)}
           >
             <ShoppingCart aria-hidden="true" className="hidden size-3.5 shrink-0 min-[380px]:block sm:hidden" />
-            <span>কার্টে যোগ করুন{quantity > 0 && ` (${quantity > 99 ? "৯৯+" : number(quantity)})`}</span>
+            <span>
+              কার্টে যোগ করুন
+              {quantity > 0 && (
+                <>
+                  {" "}
+                  <m.span
+                    key={quantity}
+                    className="inline-block tabular-nums"
+                    animate={{ scale: reduceMotion ? 1 : [1, 1.16, 1] }}
+                    transition={{ duration: reduceMotion ? 0 : 0.28, ease: "easeOut" }}
+                  >
+                    ({quantity > 99 ? "৯৯+" : number(quantity)})
+                  </m.span>
+                </>
+              )}
+            </span>
           </button>
           <ProductDetails item={item}>
-            <button type="button" className={cn(secondary, "grow whitespace-nowrap px-1.5")} aria-label={`${item.name} বিস্তারিত দেখুন`}>
+            <button type="button" className={cn(secondary, "grow whitespace-nowrap px-1.5 motion-safe:transition-[background-color,transform] motion-safe:active:scale-[0.98]")} aria-label={`${item.name} বিস্তারিত দেখুন`}>
               বিস্তারিত দেখুন
             </button>
           </ProductDetails>
         </div>
       </div>
-    </li>
+    </Reveal>
   );
 }
 
@@ -225,7 +251,7 @@ export default function ProductGrid({ variant = "home" }: { variant?: ProductGri
         <CatalogMessage />
       ) : (
         <ul role="list" className={layouts[variant].grid}>
-          {products.map((item) => <ProductCard key={item.id} item={item} variant={variant} />)}
+          {products.map((item, index) => <ProductCard key={item.id} item={item} variant={variant} delay={(index % 4) * 0.04} />)}
         </ul>
       )}
       {hasNextPage && (

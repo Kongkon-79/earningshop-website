@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import AuthFormMotion from "../../../../auth-form-motion";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -45,7 +47,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <div>
+    <AuthFormMotion>
       <AuthFormHeader
         backHref={resetEmail.success ? "/login" : "/forgot-password"}
         backLabel={resetEmail.success ? "লগইনে ফিরুন" : "নতুন কোড নিন"}
@@ -85,6 +87,6 @@ export default function ResetPasswordForm() {
           </form>
         </Form>
       )}
-    </div>
+    </AuthFormMotion>
   );
 }

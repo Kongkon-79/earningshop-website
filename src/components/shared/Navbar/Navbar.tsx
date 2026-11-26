@@ -1,10 +1,12 @@
-﻿"use client";
+"use client";
 
 import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { m } from "motion/react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useWebsiteReducedMotion } from "@/app/(website)/_components/website-motion";
 
 const links = [
   { label: "সুবিধা", href: "/#features" },
@@ -14,7 +16,7 @@ const links = [
 ];
 
 const linkAppearance =
-  "min-h-11 items-center rounded-lg px-3 text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-900";
+  "min-h-11 items-center rounded-lg px-3 text-sm font-medium text-slate-700 motion-safe:transition-colors hover:bg-teal-50 hover:text-teal-900";
 const linkStyle = `inline-flex ${linkAppearance}`;
 const loginStyle =
   "min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-teal-200 bg-teal-50 px-3 text-sm font-semibold text-teal-900 transition-colors hover:border-teal-300 hover:bg-teal-100 active:bg-teal-200 motion-reduce:transition-none";
@@ -26,6 +28,7 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
   const accountLabel = isSignedIn ? "My Account" : "লগইন";
   const AccountIcon = isSignedIn ? LayoutDashboard : LogIn;
   const [open, setOpen] = useState(false);
+  const reduceMotion = useWebsiteReducedMotion();
   const menuId = useId();
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeMenu = () => setOpen(false);
@@ -98,16 +101,27 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
             aria-expanded={open}
             aria-controls={menuId}
             onClick={() => setOpen((previous) => !previous)}
-            className="grid size-11 place-items-center rounded-xl border border-teal-900/15 bg-white text-teal-900 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 lg:hidden"
+            className="grid size-11 place-items-center rounded-xl border border-teal-900/15 bg-white text-teal-900 hover:bg-teal-50 motion-safe:transition-[background-color,transform] motion-safe:active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 lg:hidden"
           >
-            {open ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}
+            <m.span
+              key={open ? "close" : "menu"}
+              aria-hidden="true"
+              animate={{ opacity: !open || reduceMotion ? 1 : [0.6, 1], rotate: !open || reduceMotion ? 0 : [-12, 0] }}
+              transition={{ duration: !open || reduceMotion ? 0 : 0.18 }}
+            >
+              {open ? <X className="size-5" /> : <Menu className="size-5" />}
+            </m.span>
           </button>
         </div>
 
-        <nav
+        <m.nav
           id={menuId}
           hidden={!open}
           aria-label="মোবাইল ন্যাভিগেশন"
+          initial={false}
+          animate={open && !reduceMotion
+            ? { opacity: [0.8, 1], y: [-6, 0], transition: { duration: 0.22, ease: "easeOut" } }
+            : { opacity: 1, y: 0, transition: { duration: 0 } }}
           className="absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-b border-teal-900/10 bg-white px-4 py-3 shadow-lg sm:px-6 lg:hidden"
         >
           <ul className="grid grid-cols-2 gap-1">
@@ -124,7 +138,7 @@ export default function Navbar({ cartAction }: { cartAction?: ReactNode }) {
             </Link>
             {!isSignedIn && <Link href="/sign-up" onClick={closeMenu} className={`min-[420px]:hidden ${linkStyle}`}>শুরু করুন</Link>}
           </div>
-        </nav>
+        </m.nav>
       </div>
     </header>
   );
