@@ -8,6 +8,7 @@ const videoRecord = z.object({
   description: z.string().nullish(),
   videoUrl: webUrl,
   thumbnailUrl: z.string().nullish(),
+  status: z.literal("active").optional(),
 });
 
 const videoResponse = z.object({
@@ -21,7 +22,7 @@ export type TrainingVideo = {
   title: string;
   description: string;
   url: string;
-  thumbnail?: string;
+  thumbnails: string[];
   player?: { type: "youtube" | "file"; url: string };
 };
 
@@ -71,11 +72,13 @@ export async function getTrainingVideos(page: number) {
       const { _id, title, description, videoUrl, thumbnailUrl } = parsed.data;
       const url = new URL(videoUrl);
       const youtubeId = getYouTubeId(url);
-      const thumbnail = webUrl.safeParse(thumbnailUrl).data;
+      const customThumbnail = webUrl.safeParse(thumbnailUrl).data;
+      const youtubeThumbnail = youtubeId ? "https://i.ytimg.com/vi/" + youtubeId + "/hqdefault.jpg" : undefined;
+      const thumbnails = [customThumbnail, youtubeThumbnail].filter((src): src is string => Boolean(src));
 
       let player: TrainingVideo["player"];
       if (youtubeId) {
-        player = { type: "youtube", url: `https://www.youtube-nocookie.com/embed/${youtubeId}` };
+        player = { type: "youtube", url: `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1` };
       } else if (/\.(mp4|webm|og[gv]|m4v)$/i.test(url.pathname)) {
         player = { type: "file", url: url.href };
       }
@@ -85,7 +88,7 @@ export async function getTrainingVideos(page: number) {
         title,
         description: description?.trim() ?? "",
         url: url.href,
-        thumbnail: thumbnail ?? (youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : undefined),
+        thumbnails: Array.from(new Set(thumbnails)),
         player,
       }];
     });

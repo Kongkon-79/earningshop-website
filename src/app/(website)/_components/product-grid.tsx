@@ -17,6 +17,11 @@ const layouts = {
     sizes: "(min-width: 1280px) 292px, (min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw",
     skeletons: ["flex", "hidden sm:flex", "hidden lg:flex", "hidden lg:flex"],
   },
+  overview: {
+    grid: "grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4",
+    sizes: "(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw",
+    skeletons: ["flex", "hidden sm:flex", "hidden xl:flex", "hidden xl:flex"],
+  },
   catalog: {
     grid: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5",
     sizes: "(min-width: 1440px) 330px, (min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
@@ -89,6 +94,33 @@ function ProductGallery({ name, images }: Pick<StorefrontProduct, "name" | "imag
   );
 }
 
+function ProductPrice({ item }: { item: Pick<StorefrontProduct, "price" | "originalPrice"> }) {
+  const { originalPrice, price: salePrice } = item;
+  const hasDiscount = originalPrice != null && originalPrice > salePrice;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 tabular-nums">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+        <span className="whitespace-nowrap text-xl font-bold leading-snug text-teal-950 sm:text-2xl">
+          <span className="sr-only">{hasDiscount ? "বিক্রয়মূল্য " : "দাম "}</span>
+          {price(salePrice)}
+        </span>
+        {hasDiscount && (
+          <span className="whitespace-nowrap text-sm text-slate-600">
+            <span className="sr-only">মূল দাম </span>
+            <del className="decoration-slate-500">{price(originalPrice)}</del>
+          </span>
+        )}
+      </div>
+      {hasDiscount && (
+        <span className="max-w-full rounded-full bg-emerald-50 px-2.5 py-1 text-center text-xs font-semibold leading-snug text-emerald-900 ring-1 ring-inset ring-emerald-100">
+          {price(originalPrice - salePrice)} সাশ্রয়
+        </span>
+      )}
+    </div>
+  );
+}
+
 function ProductDetails({ item, children }: { item: StorefrontProduct; children: ReactElement }) {
   const { cart, addProduct } = useCart();
   const quantity = cart[item.id]?.quantity ?? 0;
@@ -102,7 +134,9 @@ function ProductDetails({ item, children }: { item: StorefrontProduct; children:
           {item.description || "প্রোডাক্টের ছবি ও দাম দেখুন।"}
         </DialogDescription>
         <ProductGallery name={item.name} images={item.images} />
-        <p className="text-base font-bold">{price(item.price)}</p>
+        <div className="rounded-xl border border-teal-100 bg-teal-50/50 px-3.5 py-3">
+          <ProductPrice item={item} />
+        </div>
         <button type="button" className={primary} onClick={() => addProduct(item)}>
           কার্টে যোগ করুন{quantity > 0 && ` (${number(quantity)})`}
         </button>
@@ -130,11 +164,13 @@ function ProductCard({ item, variant, delay }: { item: StorefrontProduct; varian
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         {item.category && <p className="text-sm font-semibold text-teal-800 [overflow-wrap:anywhere]">{item.category}</p>}
-        <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <Title className="min-w-0 text-lg font-bold leading-snug [overflow-wrap:anywhere]">{item.name}</Title>
-          <span className="shrink-0 whitespace-nowrap font-bold tabular-nums text-teal-900">{price(item.price)}</span>
+        <Title className="mt-1 min-w-0 text-lg font-bold leading-snug [overflow-wrap:anywhere]">{item.name}</Title>
+        <div className="mt-auto pt-3.5">
+          <div className="border-t border-slate-100 pt-3">
+            <ProductPrice item={item} />
+          </div>
         </div>
-        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+        <div className="flex flex-wrap gap-2 pt-3">
           <button
             type="button"
             aria-label={`${item.name} কার্টে যোগ করুন${quantity > 0 ? ` (${number(quantity)})` : ""}`}
@@ -183,6 +219,9 @@ function ProductSkeleton({ variant }: { variant: ProductGridVariant }) {
             <div className="space-y-3 p-4 motion-safe:animate-pulse sm:p-5">
               <div className="h-3 w-20 rounded bg-slate-200" />
               <div className="h-5 w-1/2 rounded bg-slate-200" />
+              <div className="border-t border-slate-100 pt-3">
+                <div className="h-6 w-16 rounded bg-slate-200" />
+              </div>
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <div className="h-11 rounded-xl bg-teal-100" />
                 <div className="h-11 rounded-xl bg-slate-100" />
@@ -239,7 +278,9 @@ export default function ProductGrid({ variant = "home" }: { variant?: ProductGri
   for (const page of data?.pages ?? []) {
     for (const item of page.products) items.set(item.id, item);
   }
-  const products = Array.from(items.values());
+  const isOverview = variant === "overview";
+  const allProducts = Array.from(items.values());
+  const products = isOverview ? allProducts.slice(0, 4) : allProducts;
 
   return (
     <section id="product-list" aria-label="প্রোডাক্ট তালিকা" className="scroll-mt-24">
@@ -254,7 +295,7 @@ export default function ProductGrid({ variant = "home" }: { variant?: ProductGri
           {products.map((item, index) => <ProductCard key={item.id} item={item} variant={variant} delay={(index % 4) * 0.04} />)}
         </ul>
       )}
-      {hasNextPage && (
+      {!isOverview && hasNextPage && (
         <div className="mt-6 text-center">
           {isFetchNextPageError && <p role="alert" className="mb-3 text-sm text-red-700">পরের প্রোডাক্টগুলো লোড করা যায়নি।</p>}
           <button type="button" className={`${secondary} disabled:opacity-60`} disabled={isFetching} onClick={() => void fetchNextPage()}>

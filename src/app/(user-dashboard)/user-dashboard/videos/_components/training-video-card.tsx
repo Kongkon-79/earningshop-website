@@ -16,8 +16,8 @@ const actionClass = "absolute inset-0 rounded-2xl focus-visible:outline focus-vi
 export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
   const titleId = useId();
   const dialogTitleRef = useRef<HTMLHeadingElement>(null);
-  const [failedThumbnail, setFailedThumbnail] = useState<string>();
-  const thumbnail = failedThumbnail !== video.thumbnail ? video.thumbnail : undefined;
+  const [failedThumbnails, setFailedThumbnails] = useState<string[]>([]);
+  const thumbnail = video.thumbnails.find((src) => !failedThumbnails.includes(src));
   const player = video.player;
   const ActionIcon = player ? Play : ArrowUpRight;
 
@@ -26,6 +26,7 @@ export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
       <div aria-hidden="true" className="relative grid aspect-[13/6] place-items-center overflow-hidden rounded-t-2xl bg-gradient-to-br from-emerald-100 via-teal-50 to-sky-100">
         {thumbnail ? (
           <Image
+            key={thumbnail}
             src={thumbnail}
             alt=""
             fill
@@ -33,7 +34,7 @@ export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
             className="object-cover"
             unoptimized
             referrerPolicy="no-referrer"
-            onError={() => setFailedThumbnail(thumbnail)}
+            onError={() => setFailedThumbnails((failed) => [...failed, thumbnail])}
           />
         ) : (
           <Clapperboard className="size-16 -translate-x-7 -rotate-12 text-teal-800/25 sm:size-20" />
@@ -54,7 +55,7 @@ export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
       {player ? (
         <Dialog>
           <DialogTrigger asChild>
-            <button type="button" aria-labelledby={titleId} className={actionClass} />
+            <button type="button" aria-label={video.title + " চালান"} className={actionClass} />
           </DialogTrigger>
           <DialogContent
             aria-describedby={undefined}
@@ -73,7 +74,8 @@ export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
                 title={video.title}
                 src={player.url}
                 className="aspect-video w-full rounded-xl bg-slate-950"
-                allow="encrypted-media; picture-in-picture; fullscreen"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               />
             ) : (
@@ -82,6 +84,7 @@ export default function TrainingVideoCard({ video }: { video: TrainingVideo }) {
                 src={player.url}
                 className="aspect-video w-full rounded-xl bg-slate-950"
                 controls
+                autoPlay
                 playsInline
                 preload="metadata"
               />

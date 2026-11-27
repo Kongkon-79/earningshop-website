@@ -7,12 +7,13 @@ import UserDashboardSidebar from "./user-dash-sidebar";
 
 type DashboardShellProps = {
   fullName: string;
+  profileAvatar: ReactNode;
   initiallyCollapsed: boolean;
   sidebarCookieName: string;
   children: ReactNode;
 };
 
-export default function DashboardShell({ fullName, initiallyCollapsed, sidebarCookieName, children }: DashboardShellProps) {
+export default function DashboardShell({ fullName, profileAvatar, initiallyCollapsed, sidebarCookieName, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(initiallyCollapsed);
 
   function toggleSidebar() {
@@ -37,7 +38,7 @@ export default function DashboardShell({ fullName, initiallyCollapsed, sidebarCo
         <UserDashboardSidebar collapsed={collapsed} />
       </aside>
       <div className="min-w-0">
-        <UserDashboardHeader fullName={fullName} sidebarCollapsed={collapsed} onToggleSidebar={toggleSidebar} />
+        <UserDashboardHeader fullName={fullName} profileAvatar={profileAvatar} sidebarCollapsed={collapsed} onToggleSidebar={toggleSidebar} />
         <main id="dashboard-content" tabIndex={-1} className="scroll-mt-32 px-[var(--dashboard-gutter)] pb-6 focus:outline-none lg:pb-10">
           {children}
         </main>

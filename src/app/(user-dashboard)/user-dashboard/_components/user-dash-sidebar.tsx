@@ -1,12 +1,10 @@
 "use client";
 
 import { House, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import LogoutModal from "@/components/modals/LogoutModal";
 import { cn } from "@/lib/utils";
 
 import { dashboardLinks, settingsHref } from "./dashboard-links";
@@ -15,20 +13,8 @@ const itemClass = "flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-
 
 export default function UserDashboardSidebar({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
-  const [isSigningOut, setIsSigningOut] = useState(false);
   const linkClass = cn(itemClass, collapsed && "justify-center px-0");
   const labelClass = collapsed ? "sr-only" : undefined;
-  const logoutLabel = isSigningOut ? "লগআউট হচ্ছে…" : "লগআউট";
-
-  async function logout() {
-    setIsSigningOut(true);
-    try {
-      await signOut({ callbackUrl: "/" });
-    } catch {
-      toast.error("লগআউট করা যায়নি। আবার চেষ্টা করুন।");
-      setIsSigningOut(false);
-    }
-  }
 
   return (
     <div className={cn(
@@ -89,10 +75,12 @@ export default function UserDashboardSidebar({ collapsed = false, onNavigate }: 
           <House aria-hidden="true" className="size-4 shrink-0" />
           <span className={labelClass}>স্টোরে ফিরুন</span>
         </Link>
-        <button type="button" disabled={isSigningOut} onClick={logout} title={collapsed ? logoutLabel : undefined} className={cn(linkClass, "w-full text-slate-700 hover:bg-red-50 hover:text-red-800 focus-visible:outline-teal-700 disabled:opacity-60")}>
-          <LogOut aria-hidden="true" className="size-4 shrink-0" />
-          <span className={labelClass}>{logoutLabel}</span>
-        </button>
+        <LogoutModal>
+          <button type="button" title={collapsed ? "লগআউট" : undefined} className={cn(linkClass, "w-full text-slate-700 hover:bg-red-50 hover:text-red-800 focus-visible:outline-teal-700")}>
+            <LogOut aria-hidden="true" className="size-4 shrink-0" />
+            <span className={labelClass}>লগআউট</span>
+          </button>
+        </LogoutModal>
       </div>
     </div>
   );

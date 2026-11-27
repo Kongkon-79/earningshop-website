@@ -12,7 +12,7 @@ const links = [
   { label: "সুবিধা", href: "/#features" },
   { label: "কীভাবে কাজ করে", href: "/#how-it-works" },
   { label: "প্যাকেজ", href: "/#packages" },
-  { label: "প্রোডাক্ট", href: "/#products" },
+  { label: "প্রোডাক্ট", href: "/products" },
 ];
 
 const linkAppearance =

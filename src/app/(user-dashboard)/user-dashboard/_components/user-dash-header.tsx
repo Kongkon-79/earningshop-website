@@ -1,24 +1,28 @@
 "use client";
 
-import { CircleUserRound, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { CartButton } from "@/app/(website)/_components/cart";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 import { settingsLinks } from "../settings/settings-links";
 import { dashboardLinks } from "./dashboard-links";
+import AccountMenu from "./account-menu";
 import UserDashboardSidebar from "./user-dash-sidebar";
 
 const desktopQuery = "(min-width: 1024px)";
 
 type UserDashboardHeaderProps = {
   fullName: string;
+  profileAvatar: ReactNode;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
 };
 
 const menuButtonClass = "size-11 shrink-0 place-items-center rounded-xl border border-slate-200 text-teal-900 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-700";
 
-export default function UserDashboardHeader({ fullName, sidebarCollapsed, onToggleSidebar }: UserDashboardHeaderProps) {
+export default function UserDashboardHeader({ fullName, profileAvatar, sidebarCollapsed, onToggleSidebar }: UserDashboardHeaderProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -38,6 +42,7 @@ export default function UserDashboardHeader({ fullName, sidebarCollapsed, onTogg
 
   const dashboardLink = dashboardLinks.find(({ href }) => href === pathname);
   const pageHeading = settingsLinks.find(({ href }) => href === pathname) ?? dashboardLink;
+  const description = pageHeading?.description;
   const title = dashboardLink?.title ?? pageHeading?.label ?? "ইউজার ড্যাশবোর্ড";
   const toggleLabel = sidebarCollapsed ? "সাইডবার বড় করুন" : "সাইডবার ছোট করুন";
   const SidebarIcon = sidebarCollapsed ? PanelLeftOpen : PanelLeftClose;
@@ -85,16 +90,14 @@ export default function UserDashboardHeader({ fullName, sidebarCollapsed, onTogg
         </button>
 
         <h1 ref={titleRef} tabIndex={-1} className="min-w-0 break-words rounded-sm text-lg font-bold leading-snug text-slate-900 focus-visible:outline-teal-700 sm:text-xl lg:text-2xl">{title}</h1>
-        <div className="flex min-w-0 max-w-9 items-center sm:max-w-40 md:max-w-56 gap-2 justify-self-end text-slate-700">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-teal-50 text-teal-900">
-            <CircleUserRound aria-hidden="true" className="size-5" />
-          </span>
-          <span title={fullName} className="sr-only text-sm font-semibold sm:not-sr-only sm:truncate">{fullName}</span>
+        <div className={cn("col-start-3 row-start-1 flex min-w-0 items-center gap-2 justify-self-end sm:gap-3", description && "row-end-3")}>
+          <CartButton />
+          <AccountMenu fullName={fullName} profileAvatar={profileAvatar} />
         </div>
 
-        {pageHeading?.description && (
-          <p className="col-span-full text-sm leading-relaxed text-slate-600 [overflow-wrap:anywhere] lg:col-span-2 lg:col-start-2">
-            {pageHeading.description}
+        {description && (
+          <p className="col-span-2 row-start-2 text-sm leading-relaxed text-slate-600 [overflow-wrap:anywhere] lg:col-span-1 lg:col-start-2">
+            {description}
           </p>
         )}
       </div>

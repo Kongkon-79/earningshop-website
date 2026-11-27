@@ -1,7 +1,9 @@
-﻿import {
+import {
   ArrowRight, Banknote, BriefcaseBusiness, CircleCheck, CirclePlay, Inbox,
   UsersRound, Wallet,
 } from "lucide-react";
+import Link from "next/link";
+import ProductGrid from "@/app/(website)/_components/product-grid";
 import { getDashboardUser } from "@/lib/dashboard-auth";
 import { getDashboardOverview } from "@/lib/dashboard-overview";
 import DashboardReferralCard from "./dashboard-referral-card";
@@ -70,6 +72,20 @@ export default async function OverviewContainer() {
           </div>
         ))}
       </dl>
+
+      <section aria-labelledby="overview-products-title" className="space-y-3 sm:space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <h2 id="overview-products-title" className="text-xl font-bold leading-snug text-slate-900 sm:text-2xl">বেবি প্রোডাক্ট</h2>
+          <Link
+            href="/user-dashboard/products"
+            className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-teal-900 shadow-sm hover:border-teal-300 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+          >
+            সব প্রোডাক্ট দেখুন
+            <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+          </Link>
+        </div>
+        <ProductGrid variant="overview" />
+      </section>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <DashboardReferralCard referralCode={user.referralCode} detailsHref="/user-dashboard/referral" />

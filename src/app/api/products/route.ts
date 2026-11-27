@@ -18,7 +18,9 @@ const activeProduct = z.object({
   name: z.string().trim().min(1),
   discription: z.string().trim().nullish(),
   catagory: z.string().trim().nullish(),
-  price: z.number().nonnegative(),
+  orginalPrice: z.number().nonnegative().nullish(),
+  discountPrice: z.number().nonnegative().nullish(),
+  price: z.number().nonnegative().nullish(),
   image: z.array(z.unknown()).nullish(),
 });
 
@@ -50,23 +52,32 @@ export async function GET(request: Request) {
     const { data, meta } = productResponse.parse(await response.json());
     if (meta.page !== page) return unavailable();
 
-    const products: StorefrontProduct[] = data.filter(({ status }) => status === "active").map((record) => {
-      const product = activeProduct.parse(record);
+    const products: StorefrontProduct[] = [];
+    for (const record of data) {
+      if (record.status !== "active") continue;
+      const recordResult = activeProduct.safeParse(record);
+      if (!recordResult.success) continue;
+
+      const product = recordResult.data;
+      const price = product.discountPrice ?? product.orginalPrice ?? product.price;
+      if (price == null) continue;
+
       const images = new Set<string>();
       for (const image of product.image ?? []) {
         const parsed = webImage.safeParse(image);
         if (parsed.success) images.add(parsed.data);
       }
 
-      return {
+      products.push({
         id: product._id,
         name: product.name,
         category: product.catagory ?? "",
         description: product.discription ?? "",
-        price: product.price,
+        originalPrice: product.orginalPrice ?? null,
+        price,
         images: Array.from(images),
-      };
-    });
+      });
+    }
 
     return NextResponse.json({
       products,

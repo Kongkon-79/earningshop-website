@@ -1,20 +1,12 @@
-import { ArrowLeft, ArrowRight, ArrowUpRight, ClipboardList } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, BriefcaseBusiness, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getDashboardUser } from "@/lib/dashboard-auth";
+import DashboardListState from "../../_components/dashboard-list-state";
 import WorkCard from "./work-card";
-import { getAvailableWorks, getWorkSubmissions, worksPerPage, type Work, type WorkSubmission } from "./work-data";
+import WorkResubmit from "./work-resubmit";
+import { getAvailableWorks, getWorkSubmissions, worksPerPage, type WorkSubmission } from "./work-data";
 import { formatWorkDate, formatWorkReward } from "./work-format";
-
-const exampleWorks: Work[] = [
-  { id: "example-facebook", title: "Facebook পেজে লাইক ও শেয়ার", description: "আমাদের ফেসবুক পেজে লাইক ও পোস্ট শেয়ার করুন।", instructions: "", reward: 10 },
-  { id: "example-app", title: "অ্যাপ ইনস্টল ও প্লে-স্টোর রিভিউ দিন", description: "নির্দিষ্ট অ্যাপ ইনস্টল করে আপনার অভিজ্ঞতা নিয়ে রিভিউ লিখুন।", instructions: "", reward: 40 },
-  { id: "example-instagram", title: "ইনস্টাগ্রাম ফলো ও স্টোরি শেয়ার", description: "ইনস্টাগ্রাম অ্যাকাউন্ট ফলো করে রিল বা পোস্ট শেয়ার করুন।", instructions: "", reward: 12 },
-  { id: "example-youtube", title: "YouTube ভিডিও দেখে লাইক ও কমেন্ট দিন", description: "নির্দিষ্ট ইউটিউব ভিডিওটি দেখে লাইক ও কমেন্ট দিন।", instructions: "", reward: 15 },
-  { id: "example-member", title: "নতুন সদস্য ভেরিফিকেশন", description: "নিজের রেফারেল লিংকে নতুন সদস্য যোগ করিয়ে ভেরিফিকেশনের স্ক্রিনশট জমা দিন।", instructions: "", reward: 50 },
-  { id: "example-product", title: "প্রোডাক্ট ভিডিও রিভিউ", description: "প্রোডাক্টের ৩০ সেকেন্ডের ছোট রিভিউ তৈরি করে স্ক্রিনশট জমা দিন।", instructions: "", reward: 35 },
-  { id: "example-social", title: "সোশ্যাল মিডিয়া শেয়ার", description: "অফিশিয়াল পেজের নতুন পোস্ট নিজের টাইমলাইনে শেয়ার করে স্ক্রিনশট জমা দিন।", instructions: "", reward: 20 },
-];
 
 const submissionStatus = {
   pending: { label: "যাচাইয়ের অপেক্ষায়", color: "bg-amber-50 text-amber-900" },
@@ -74,23 +66,23 @@ export default async function WorksContainer({ tasksPage = 1, submissionsPage = 
     redirect(worksHref(works ? Math.min(tasksPage, workPageCount) : tasksPage, submissions ? Math.min(submissionsPage, submissionPageCount) : submissionsPage));
   }
 
-  const preview = !works?.items.length;
-  const items = preview ? exampleWorks : works.items;
-
   return (
     <div className="space-y-6 pt-[var(--dashboard-gutter)] sm:space-y-8">
       <section id="available-works" aria-labelledby="available-works-title" className="scroll-mt-32">
         <h2 id="available-works-title" className="sr-only">কাজের তালিকা</h2>
-        {preview && (
-          <p className="mb-3 text-sm leading-relaxed text-slate-600">
-            {works ? "এখন কোনো কাজ উপলভ্য নেই। নিচে নমুনা কাজ দেখতে পারেন।" : "কাজের তালিকা লোড করা যায়নি। নিচে নমুনা কাজ দেখানো হচ্ছে।"}
-          </p>
+        {works?.items.length ? (
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+            {works.items.map((work) => (
+              <li key={work.id} className="min-w-0"><WorkCard work={work} /></li>
+            ))}
+          </ul>
+        ) : (
+          <DashboardListState
+            icon={<BriefcaseBusiness className="size-5" />}
+            message={works ? "এখন কোনো কাজ উপলভ্য নেই।" : "কাজের তালিকা লোড করা যায়নি।"}
+            retry={!works}
+          />
         )}
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
-          {items.map((work) => (
-            <li key={work.id} className="min-w-0"><WorkCard work={work} preview={preview} /></li>
-          ))}
-        </ul>
         <Pagination label="কাজের তালিকার পেজ" page={tasksPage} total={workPageCount} href={(page) => worksHref(page, submissionsPage, "#available-works")} />
       </section>
 
@@ -117,20 +109,18 @@ export default async function WorksContainer({ tasksPage = 1, submissionsPage = 
                     <div className="flex shrink-0 flex-wrap items-center gap-2 text-xs font-semibold">
                       {submission.reward != null && <span className="text-slate-700">{formatWorkReward(submission.reward)}</span>}
                       <span className={`rounded-full px-2.5 py-1 ${status.color}`}>{status.label}</span>
+                      {submission.status === "rejected" && <WorkResubmit id={submission.id} taskTitle={submission.taskTitle} />}
                     </div>
                   </li>
                 );
               })}
             </ul>
           ) : (
-            <div className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300 p-4 text-center sm:min-h-44">
-              <span className="grid size-11 place-items-center rounded-xl bg-slate-100 text-slate-500">
-                <ClipboardList aria-hidden="true" className="size-5" />
-              </span>
-              <p className="text-sm font-semibold text-slate-800">
-                {submissions ? "এখনও কিছু জমা দেননি" : "জমা দেওয়া কাজের তালিকা লোড করা যায়নি"}
-              </p>
-            </div>
+            <DashboardListState
+              icon={<ClipboardList className="size-5" />}
+              message={submissions ? "এখনও কিছু জমা দেননি।" : "জমা দেওয়া কাজের তালিকা লোড করা যায়নি।"}
+              retry={!submissions}
+            />
           )}
         </div>
         <Pagination label="জমা দেওয়া কাজের পেজ" page={submissionsPage} total={submissionPageCount} href={(page) => worksHref(tasksPage, page, "#my-submissions")} />

@@ -1,111 +1,99 @@
-import React from "react";
+"use client";
+
+import { LoaderCircle, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useRef, useState, type ReactElement, type RefObject } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
-type logoutModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-};
+type LogoutModalProps = {
+  callbackUrl?: string;
+} & (
+  | { children: ReactElement; open?: never; onOpenChange?: never; returnFocusRef?: never }
+  | { children?: never; open: boolean; onOpenChange: (open: boolean) => void; returnFocusRef: RefObject<HTMLButtonElement> }
+);
 
-const LogoutModal = ({ isOpen, onClose, onConfirm }: logoutModalProps) => {
+const actionClass = "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-center text-sm font-semibold leading-snug focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 aria-disabled:opacity-70";
+
+export default function LogoutModal({ children, callbackUrl = "/", open, onOpenChange, returnFocusRef }: LogoutModalProps) {
+  const [localOpen, setLocalOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [error, setError] = useState("");
+  const signingOut = useRef(false);
+
+  function changeOpen(next: boolean) {
+    if (signingOut.current) return;
+    setError("");
+    if (onOpenChange) onOpenChange(next);
+    else setLocalOpen(next);
+  }
+
+  async function confirmLogout() {
+    if (signingOut.current) return;
+    signingOut.current = true;
+    setIsSigningOut(true);
+    setError("");
+
+    try {
+      await signOut({ callbackUrl });
+    } catch {
+      signingOut.current = false;
+      setIsSigningOut(false);
+      setError("লগআউট করা যায়নি। আবার চেষ্টা করুন।");
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90%] md:max-w-[420px] bg-white !rounded-[12px]">
-        <DialogHeader>
-          <DialogTitle className="dark:text-black text-lg md:text-xl pt-1">Are you sure you want to log out?</DialogTitle>
-          <DialogDescription className="dark:text-black text-sm md:text-base pt-1">
-            You are about to log out of your account. You will need to log in
-            again to continue using the services.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="w-full flex flex-row items-center justify-between gap-7 mt-3 md:mt-5">
+    <Dialog open={open ?? localOpen} onOpenChange={changeOpen}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+      <DialogContent
+        lang="bn"
+        closeLabel="লগআউট মডাল বন্ধ করুন"
+        onCloseAutoFocus={(event) => {
+          if (!returnFocusRef?.current) return;
+          event.preventDefault();
+          returnFocusRef.current.focus();
+        }}
+        className={cn(
+          "max-h-[calc(100dvh_-_1.5rem)] w-[calc(100%_-_1.5rem)] max-w-sm gap-4 overflow-y-auto rounded-2xl border-slate-200 bg-white p-4 font-sans text-slate-900 sm:rounded-2xl sm:p-6 motion-reduce:animate-none",
+          "isolate [&>button]:grid [&>button]:size-10 [&>button]:place-items-center [&>button]:rounded-lg [&>button]:bg-white",
+          isSigningOut && "[&>button]:hidden",
+        )}
+      >
+        <div className="pr-11">
+          <span className="mb-3 grid size-11 place-items-center rounded-xl bg-red-50 text-red-700">
+            <LogOut aria-hidden="true" className="size-5" />
+          </span>
+          <DialogTitle className="text-xl font-bold leading-snug">লগআউট করবেন?</DialogTitle>
+        </div>
+        <DialogDescription className="-mt-2 text-sm leading-relaxed text-slate-600">
+          ড্যাশবোর্ড ব্যবহার করতে আবার লগইন করতে হবে।
+        </DialogDescription>
+        {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
+        <div className="grid grid-cols-2 gap-2.5">
+          <DialogClose asChild>
+            <button type="button" disabled={isSigningOut} className={cn(actionClass, "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 focus-visible:outline-slate-700")}>
+              বাতিল
+            </button>
+          </DialogClose>
           <button
-            className="text-white  bg-black py-[8px] px-6 text-sm font-medium leading-[120%] rounded-[8px]"
-            onClick={onConfirm}
+            type="button"
+            onClick={confirmLogout}
+            aria-disabled={isSigningOut}
+            className={cn(actionClass, "bg-red-700 text-white hover:bg-red-800 focus-visible:outline-red-700")}
           >
-            Yes
+            {isSigningOut && <LoaderCircle aria-hidden="true" className="size-4 shrink-0 motion-safe:animate-spin" />}
+            {isSigningOut ? "লগআউট হচ্ছে…" : "লগআউট করুন"}
           </button>
-          <button
-            className="text-base font-medium bg-primary text-white leading-[120%] py-[8px] px-[18px] rounded-[8px] shadow-none border-none"
-            onClick={onClose}
-          >
-            No
-          </button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default LogoutModal;
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import { Dialog, DialogContent } from "@/components/ui/dialog";
-// import { useSession } from "next-auth/react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import React from "react";
-
-// const PepWelcomePopup = () => {
-//   const [open, setOpen] = React.useState(true);
-
-//    const session = useSession();
-//    const isLogin = session?.data?.user?.accessToken;
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogContent
-//         className="max-h-[87vh] w-[80vw] max-w-[760px] gap-0 overflow-y-auto rounded-xl border-none bg-white p-0 shadow-2xl [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>button]:right-3 [&>button]:top-3 [&>button]:flex [&>button]:h-9 [&>button]:w-9 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:bg-black/80 [&>button]:p-0 [&>button]:text-white [&>button]:opacity-100 [&>button]:ring-1 [&>button]:ring-white/50 hover:[&>button]:bg-black [&>button>svg]:h-5 [&>button>svg]:w-5"
-//         aria-describedby="pep-popup-description"
-//       >
-//         <div className="w-full">
-//           <Image
-//             src="/assets/images/pep/popup_1.svg"
-//             alt="Tryouts banner"
-//             width={1024}
-//             height={1536}
-//             className="block h-auto w-full"
-//             priority
-//           />
-//         </div>
-
-//         <div className="relative w-full">
-//           <Image
-//             src="/assets/images/pep/popup_2.svg"
-//             alt="Tryouts schedule"
-//             width={1024}
-//             height={1536}
-//             className="block h-auto w-full"
-//           />
-
-//           <div className="absolute inset-x-0 bottom-[6.5%] flex justify-center px-4">
-//             <Link
-//                  href={`${isLogin ? "/prices#combine-june" : "/sign-up"}`}
-//               className="inline-flex h-8 min-w-[140px] items-center justify-center rounded-full bg-primary px-6 py-1 text-sm font-semibold text-black transition-opacity hover:opacity-90 md:h-12 md:min-w-[180px] md:px-8 md:py-2 md:text-base lg:py-3"
-//             >
-//               Reserve your spot
-//             </Link>
-//           </div>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
-
-// export default PepWelcomePopup;
+}
